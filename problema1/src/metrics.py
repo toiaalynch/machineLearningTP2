@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # FALTA LO DE LOS GRAFICOS!
 def confusion_matrix(y_true, y_pred):
@@ -84,6 +85,77 @@ def auc_pr(y_true, y_prob):
         auc_pr += (recall_points[i] - recall_points[i - 1]) * precision_points[i]
     
     return auc_pr
+
+
+
+def plot_roc_curves(models, y_true, y_probs):
+    plt.figure(figsize=(6, 6))
+    
+    for model_name, y_prob in zip(models, y_probs):
+        sorted_indices = np.argsort(-y_prob)
+        y_true_sorted = y_true[sorted_indices]
+
+        pos_count = np.sum(y_true == 1)
+        neg_count = np.sum(y_true == 0)
+
+        tpr = []
+        fpr = []
+        cumulative_tpr = 0
+        cumulative_fpr = 0
+
+        for i in range(len(y_true)):
+            if y_true_sorted[i] == 1:
+                cumulative_tpr += 1 / pos_count
+            else:
+                cumulative_fpr += 1 / neg_count
+
+            tpr.append(cumulative_tpr)
+            fpr.append(cumulative_fpr)
+
+        plt.plot(fpr, tpr, label=f"{model_name} ROC Curve")
+
+    plt.plot([0, 1], [0, 1], 'r--', label="Random Classifier")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate (Recall)")
+    plt.title("ROC Curves Comparison")
+    plt.legend(loc="lower right")
+    plt.show()
+
+
+def plot_pr_curves(models, y_true, y_probs):
+    plt.figure(figsize=(6, 6))
+
+    for model_name, y_prob in zip(models, y_probs):
+        sorted_indices = np.argsort(-y_prob)
+        y_true_sorted = y_true[sorted_indices]
+
+        tp = 0
+        fp = 0
+        fn = np.sum(y_true == 1)
+
+        precision_points = []
+        recall_points = []
+
+        for i in range(len(y_true)):
+            if y_true_sorted[i] == 1:
+                tp += 1
+                fn -= 1
+            else:
+                fp += 1
+
+            precision = tp / (tp + fp) if (tp + fp) != 0 else 0
+            recall = tp / (tp + fn) if (tp + fn) != 0 else 0
+
+            precision_points.append(precision)
+            recall_points.append(recall)
+
+        plt.plot(recall_points, precision_points, label=f"{model_name} PR Curve")
+
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.title("Precision-Recall Curves Comparison")
+    plt.legend(loc="lower left")
+    plt.show()
 
 # Función para guardar las métricas en un diccionario
 def guardar_metricas(y_true, y_pred, y_prob):
