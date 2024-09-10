@@ -4,8 +4,33 @@ import numpy as np
 def load_data(file_path):
     """
     Cargar el dataset desde un archivo CSV usando solo numpy.
+    Mezclar aleatoriamente los datos después de cargarlos.
     """
-    return np.genfromtxt(file_path, delimiter=',', skip_header=1)
+    data = np.genfromtxt(file_path, delimiter=',', skip_header=1)
+
+    # Separar X e y
+    X = data[:, :-1]  # Todas las columnas menos la última son las características
+    y = data[:, -1]   # La última columna es la etiqueta
+
+    return X, y
+
+def shuffle_data(X, y):
+    """
+    Mezclar aleatoriamente los datos (X, y).
+    """
+    indices = np.random.permutation(len(y))  # Generar una permutación aleatoria de los índices
+    return X[indices], y[indices]
+
+def standardize(X):
+    """
+    Estandariza las características (X) para que tengan media 0 y desviación estándar 1.
+    Excluye la última columna que es la etiqueta de predicción binaria.
+    """
+    mean = np.mean(X, axis=0)
+    std = np.std(X, axis=0)
+    # Evitar la división por cero si alguna desviación estándar es 0
+    std[std == 0] = 1
+    return (X - mean) / std
 
 def save_data(data, file_path):
     """
@@ -31,7 +56,8 @@ def undersampling(X, y):
     X_resampled = np.vstack((majority_downsampled, minority_class))
     y_resampled = np.hstack((np.zeros(len(majority_downsampled)), np.ones(len(minority_class))))
 
-    return X_resampled, y_resampled
+    # Mezclar después del undersampling
+    return shuffle_data(X_resampled, y_resampled)
 
 def oversampling_duplication(X, y):
     """
@@ -49,7 +75,8 @@ def oversampling_duplication(X, y):
     X_resampled = np.vstack((majority_class, minority_upsampled))
     y_resampled = np.hstack((np.zeros(len(majority_class)), np.ones(len(minority_upsampled))))
 
-    return X_resampled, y_resampled
+    # Mezclar después del oversampling
+    return shuffle_data(X_resampled, y_resampled)
 
 def oversampling_smote(X, y, k=5):
     """
@@ -85,8 +112,8 @@ def oversampling_smote(X, y, k=5):
     X_resampled = np.vstack((X, new_samples))
     y_resampled = np.hstack((y, np.ones(len(new_samples))))
 
-    return X_resampled, y_resampled
-
+    # Mezclar después del SMOTE
+    return shuffle_data(X_resampled, y_resampled)
 
 def preprocess_data(file_path, target_col_idx, method="undersampling"):
     """
@@ -96,9 +123,11 @@ def preprocess_data(file_path, target_col_idx, method="undersampling"):
     - "oversampling_duplication"
     - "oversampling_smote"
     """
-    data = load_data(file_path)
-    X = data[:, :-1]
-    y = data[:, target_col_idx]
+    # Cargar los datos
+    X, y = load_data(file_path)
+
+    # Estandarizar los datos (excluye la columna objetivo)
+    X = standardize(X)
 
     if method == "undersampling":
         X_resampled, y_resampled = undersampling(X, y)
@@ -110,8 +139,9 @@ def preprocess_data(file_path, target_col_idx, method="undersampling"):
         X_resampled, y_resampled = oversampling_smote(X, y)
         output_filename = "/Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_oversampling_smote.csv"
     else:
-        raise ValueError("Método no válido. Usa: 'undersampling', 'oversampling_duplication', 'oversampling_smote' o 'cost_reweighting'.")
+        raise ValueError("Método no válido. Usa: 'undersampling', 'oversampling_duplication', 'oversampling_smote'.")
 
+    # Guardar los datos procesados
     processed_data = np.hstack((X_resampled, y_resampled.reshape(-1, 1)))
     save_data(processed_data, output_filename)
 
@@ -123,6 +153,7 @@ if __name__ == "__main__":
     preprocess_data(dataset_file, target_column_idx, method="undersampling")
     preprocess_data(dataset_file, target_column_idx, method="oversampling_duplication")
     preprocess_data(dataset_file, target_column_idx, method="oversampling_smote")
+
 
 # SMOTE: La implementación aquí es una versión simplificada. En lugar de calcular los
 #  k vecinos más cercanos, selecciona puntos de la clase minoritaria aleatoriamente 

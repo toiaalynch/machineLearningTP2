@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
+
 
 # FALTA LO DE LOS GRAFICOS!
 def confusion_matrix(y_true, y_pred):
@@ -28,29 +30,44 @@ def f1_score(y_true, y_pred):
     rec = recall(y_true, y_pred)
     return 2 * (prec * rec) / (prec + rec) if (prec + rec) != 0 else 0
 
-# Cálculo del AUC-ROC
+
 def roc_auc(y_true, y_prob):
-    sorted_indices = np.argsort(-y_prob)
-    y_true_sorted = y_true[sorted_indices]
+    try:
+        auc = roc_auc_score(y_true, y_prob)
+        print(f"AUC-ROC Calculado: {auc}")
+        return auc
+    except ValueError as e:
+        print(f"Error en AUC-ROC: {e}")
+        return 0
+
+# Cálculo del AUC-ROC
+# def roc_auc(y_true, y_prob):
+#     sorted_indices = np.argsort(-y_prob)  # Ordenar por probabilidad descendente
+#     y_true_sorted = y_true[sorted_indices]  # Ordenar las etiquetas basándose en probabilidades
     
-    pos_count = np.sum(y_true == 1)
-    neg_count = np.sum(y_true == 0)
+#     pos_count = np.sum(y_true == 1)
+#     neg_count = np.sum(y_true == 0)
     
-    if pos_count == 0 or neg_count == 0:
-        return 0  # Si no hay positivos o negativos, AUC-ROC no tiene sentido.
+#     if pos_count == 0 or neg_count == 0:
+#         print("Advertencia: No hay suficientes clases positivas o negativas para calcular AUC-ROC.")
+#         return 0  # Si no hay positivos o negativos, AUC-ROC no tiene sentido.
     
-    tpr = 0  # True Positive Rate
-    fpr = 0  # False Positive Rate
-    auc = 0
+#     tpr = 0  # True Positive Rate
+#     fpr = 0  # False Positive Rate
+#     auc = 0
     
-    for i in range(len(y_true)):
-        if y_true_sorted[i] == 1:
-            tpr += 1 / pos_count
-        else:
-            auc += tpr / neg_count
-            fpr += 1 / neg_count
-    
-    return auc
+#     for i in range(len(y_true_sorted)):  # Recorrer las etiquetas ordenadas
+#         if y_true_sorted[i] == 1:
+#             tpr += 1 / pos_count
+#         else:
+#             auc += tpr / neg_count  # Aumentar el AUC acumulando el tpr por cada FP
+#             fpr += 1 / neg_count
+
+#     print(f"AUC-ROC Calculado: {auc}")
+#     return auc
+
+
+
 
 # Cálculo del AUC-PR
 def auc_pr(y_true, y_prob):
@@ -60,8 +77,9 @@ def auc_pr(y_true, y_prob):
     tp = 0
     fp = 0
     fn = np.sum(y_true == 1)
-    
+
     if fn == 0:
+        print("Advertencia: No hay suficientes clases positivas para calcular AUC-PR.")
         return 0  # Si no hay positivos, AUC-PR no tiene sentido.
     
     precision_points = []
@@ -80,11 +98,13 @@ def auc_pr(y_true, y_prob):
         precision_points.append(precision)
         recall_points.append(recall)
     
-    auc_pr = 0
+    auc_pr_value = 0
     for i in range(1, len(precision_points)):
-        auc_pr += (recall_points[i] - recall_points[i - 1]) * precision_points[i]
+        auc_pr_value += (recall_points[i] - recall_points[i - 1]) * precision_points[i]
     
-    return auc_pr
+    print(f"AUC-PR Calculado: {auc_pr_value}")
+    return auc_pr_value
+
 
 
 
@@ -93,7 +113,12 @@ def plot_roc_curves(models, y_true, y_probs):
     
     for model_name, y_prob in zip(models, y_probs):
         sorted_indices = np.argsort(-y_prob)
+        
+        # Asegurarse de que y_true y y_prob tengan el mismo tamaño
         y_true_sorted = y_true[sorted_indices]
+        if len(y_true_sorted) != len(y_prob):
+            print(f"Warning: Mismatch in lengths of y_true and y_prob for {model_name}")
+            continue  # Saltar este modelo si las longitudes no coinciden
 
         pos_count = np.sum(y_true == 1)
         neg_count = np.sum(y_true == 0)
@@ -103,7 +128,7 @@ def plot_roc_curves(models, y_true, y_probs):
         cumulative_tpr = 0
         cumulative_fpr = 0
 
-        for i in range(len(y_true)):
+        for i in range(len(y_true_sorted)):
             if y_true_sorted[i] == 1:
                 cumulative_tpr += 1 / pos_count
             else:
@@ -122,12 +147,18 @@ def plot_roc_curves(models, y_true, y_probs):
     plt.show()
 
 
+
 def plot_pr_curves(models, y_true, y_probs):
     plt.figure(figsize=(6, 6))
 
     for model_name, y_prob in zip(models, y_probs):
         sorted_indices = np.argsort(-y_prob)
+        
+        # Asegurarse de que y_true y y_prob tengan el mismo tamaño
         y_true_sorted = y_true[sorted_indices]
+        if len(y_true_sorted) != len(y_prob):
+            print(f"Warning: Mismatch in lengths of y_true and y_prob for {model_name}")
+            continue  # Saltar este modelo si las longitudes no coinciden
 
         tp = 0
         fp = 0
@@ -136,7 +167,7 @@ def plot_pr_curves(models, y_true, y_probs):
         precision_points = []
         recall_points = []
 
-        for i in range(len(y_true)):
+        for i in range(len(y_true_sorted)):
             if y_true_sorted[i] == 1:
                 tp += 1
                 fn -= 1
