@@ -23,44 +23,48 @@ def recall(y_true, y_pred):
     return TP / (TP + FN) if (TP + FN) != 0 else 0
 
 def f1_score(y_true, y_pred):
-    precision = precision(y_true, y_pred)
-    recall = recall(y_true, y_pred)
-    return 2 * (precision * recall) / (precision + recall) if (precision + recall) != 0 else 0
+    prec = precision(y_true, y_pred)  # Cambia el nombre de la variable para evitar conflicto
+    rec = recall(y_true, y_pred)
+    return 2 * (prec * rec) / (prec + rec) if (prec + rec) != 0 else 0
 
-# Función para calcular AUC-ROC
+# Cálculo del AUC-ROC
 def roc_auc(y_true, y_prob):
-    # Ordenar los datos por las probabilidades
     sorted_indices = np.argsort(-y_prob)
     y_true_sorted = y_true[sorted_indices]
     
-    # Inicializar variables
     pos_count = np.sum(y_true == 1)
     neg_count = np.sum(y_true == 0)
+    
+    if pos_count == 0 or neg_count == 0:
+        return 0  # Si no hay positivos o negativos, AUC-ROC no tiene sentido.
+    
     tpr = 0  # True Positive Rate
     fpr = 0  # False Positive Rate
     auc = 0
     
-    # Calcular el área bajo la curva ROC
     for i in range(len(y_true)):
         if y_true_sorted[i] == 1:
             tpr += 1 / pos_count
         else:
-            auc += tpr / neg_count  # Sumar el área bajo la curva
+            auc += tpr / neg_count
             fpr += 1 / neg_count
     
     return auc
 
-# Función para calcular el AUC-PR
+# Cálculo del AUC-PR
 def auc_pr(y_true, y_prob):
-    precision_points = []
-    recall_points = []
-    
     sorted_indices = np.argsort(-y_prob)
     y_true_sorted = y_true[sorted_indices]
     
     tp = 0
     fp = 0
     fn = np.sum(y_true == 1)
+    
+    if fn == 0:
+        return 0  # Si no hay positivos, AUC-PR no tiene sentido.
+    
+    precision_points = []
+    recall_points = []
     
     for i in range(len(y_true)):
         if y_true_sorted[i] == 1:
@@ -75,7 +79,6 @@ def auc_pr(y_true, y_prob):
         precision_points.append(precision)
         recall_points.append(recall)
     
-    # Calcular el área bajo la curva PR
     auc_pr = 0
     for i in range(1, len(precision_points)):
         auc_pr += (recall_points[i] - recall_points[i - 1]) * precision_points[i]

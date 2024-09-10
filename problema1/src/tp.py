@@ -1,52 +1,45 @@
 import numpy as np
+from data_splitting import split_train_validation
+from modelo import LogisticRegressionL2
+from metrics import guardar_metricas, imprimir_tabla_resultados
 
-class LogisticRegressionL2:
-    def __init__(self, learning_rate=0.01, lambda_=0.1, num_iters=1000):
-        # TENGO QUE RE VER EL LAMDA
-        self.learning_rate = learning_rate
-        self.lambda_ = lambda_
-        self.num_iters = num_iters
-        self.theta = None
-        self.cost_history = []
 
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
+# Cargar los datos (aquí asumo que tienes los datos en un archivo CSV)
+def cargar_datos():
+    # Ejemplo para cargar datos de un CSV. Puedes adaptarlo a tu formato de datos.
+    # Asumo que tienes las características (X) y etiquetas (y) separadas en el CSV.
+    data = np.loadtxt('/Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/raw/breast_cancer_dev.csv', delimiter=',', skiprows=1)  # Ajusta la ruta y el delimitador según tu archivo
+    X = data[:, :-1]  # Todas las columnas menos la última son las características
+    y = data[:, -1]   # La última columna es la etiqueta
+    return X, y
 
-    def compute_cost(self, X, y):
-        m = len(y)
-        h = self.sigmoid(X @ self.theta)
-        cost = (-1/m) * (y.T @ np.log(h) + (1 - y).T @ np.log(1 - h))
-        reg_cost = (self.lambda_ / (2 * m)) * np.sum(np.square(self.theta[1:]))
-        return cost + reg_cost
-
-    def compute_gradient(self, X, y):
-        m = len(y)
-        h = self.sigmoid(X @ self.theta)
-        gradient = (1/m) * (X.T @ (h - y))
-        gradient[1:] += (self.lambda_ / m) * self.theta[1:]
-        return gradient
-
-    def fit(self, X, y):
-        m, n = X.shape
-        self.theta = np.zeros((n, 1))  
-        y = y.reshape(-1, 1)  
-        
-        for i in range(self.num_iters):
-            cost = self.compute_cost(X, y)
-            gradient = self.compute_gradient(X, y)
-            
-            self.theta -= self.learning_rate * gradient
-            self.cost_history.append(cost)
-            
-            if i % 100 == 0:
-                print(f"Iteración {i}: Costo = {cost:.4f}")
+def main():
+    # Cargar los datos
+    X, y = cargar_datos()
     
-    def predict(self, X):
-        prob = self.sigmoid(X @ self.theta)
-        return (prob >= 0.5).astype(int)
+    # Hacer el split en entrenamiento y prueba (80-20)
+    X_train, X_val, y_train, y_val = split_train_validation(X, y, 0.2, 42)
+    
+    # Entrenar el modelo de regresión logística
+    modelo = LogisticRegressionL2(learning_rate=0.01, lambda_=0.1, num_iters=1000)
+    modelo.fit(X_train, y_train)
+    
+    # Hacer predicciones en los datos de prueba
+    y_pred = modelo.predict(X_val)
+    y_prob = modelo.predict_proba(X_val)
 
-    def predict_proba(self, X):
-        return self.sigmoid(X @ self.theta)
+        # Imprimir las probabilidades predichas y las etiquetas verdaderas
+    print("Probabilidades predichas (y_prob):", y_prob)
+    print("Etiquetas verdaderas (y_test):", y_val)
 
-model = LogisticRegressionL2(learning_rate=0.01, lambda_=0.1, num_iters=10000)
+    
+    # Guardar las métricas
+    resultados = {}
+    resultados['Logistic Regression L2'] = guardar_metricas(y_val, y_pred, y_prob)
+    
+    # Imprimir los resultados
+    imprimir_tabla_resultados(resultados)
 
+# Ejecutar el main si se llama desde la línea de comandos
+if __name__ == "__main__":
+    main()
