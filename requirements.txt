@@ -2,3 +2,7 @@ No se para que sirve req
 como hago para cargar el modelo?
 Tambien tengo que implementar cada cosa?
 Tengo qeu hacer lo de load y save?
+No se puede usar librerias no?
+Para definir el valor de lambda, solo lo puedo hacer con un modelo o eso no sirve?
+que tnego que poner en requirements?
+Tengo que tambien crear una funcion que me haga el split o puedo usar una libreria?
