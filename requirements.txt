@@ -1,2 +1,2 @@
 1. Ver que lo de SMOTE no esta bien ejecutado.
-2. El cost reweighting no esta implementado.
+2. Lo de auc roc y auc pc no esta bien. 

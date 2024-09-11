@@ -1,9 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, average_precision_score
 
 
-# FALTA LO DE LOS GRAFICOS!
 def confusion_matrix(y_true, y_pred):
     TP = np.sum((y_true == 1) & (y_pred == 1))  # Verdaderos Positivos
     TN = np.sum((y_true == 0) & (y_pred == 0))  # Verdaderos Negativos
@@ -40,70 +39,21 @@ def roc_auc(y_true, y_prob):
         print(f"Error en AUC-ROC: {e}")
         return 0
 
-# Cálculo del AUC-ROC
-# def roc_auc(y_true, y_prob):
-#     sorted_indices = np.argsort(-y_prob)  # Ordenar por probabilidad descendente
-#     y_true_sorted = y_true[sorted_indices]  # Ordenar las etiquetas basándose en probabilidades
-    
-#     pos_count = np.sum(y_true == 1)
-#     neg_count = np.sum(y_true == 0)
-    
-#     if pos_count == 0 or neg_count == 0:
-#         print("Advertencia: No hay suficientes clases positivas o negativas para calcular AUC-ROC.")
-#         return 0  # Si no hay positivos o negativos, AUC-ROC no tiene sentido.
-    
-#     tpr = 0  # True Positive Rate
-#     fpr = 0  # False Positive Rate
-#     auc = 0
-    
-#     for i in range(len(y_true_sorted)):  # Recorrer las etiquetas ordenadas
-#         if y_true_sorted[i] == 1:
-#             tpr += 1 / pos_count
-#         else:
-#             auc += tpr / neg_count  # Aumentar el AUC acumulando el tpr por cada FP
-#             fpr += 1 / neg_count
 
-#     print(f"AUC-ROC Calculado: {auc}")
-#     return auc
 
 
 
 
 # Cálculo del AUC-PR
 def auc_pr(y_true, y_prob):
-    sorted_indices = np.argsort(-y_prob)
-    y_true_sorted = y_true[sorted_indices]
-    
-    tp = 0
-    fp = 0
-    fn = np.sum(y_true == 1)
+    try:
+        auc = average_precision_score(y_true, y_prob)
+        print(f"AUC-PR Calculado: {auc}")
+        return auc
+    except ValueError as e:
+        print(f"Error en AUC-PR: {e}")
+        return 0
 
-    if fn == 0:
-        print("Advertencia: No hay suficientes clases positivas para calcular AUC-PR.")
-        return 0  # Si no hay positivos, AUC-PR no tiene sentido.
-    
-    precision_points = []
-    recall_points = []
-    
-    for i in range(len(y_true)):
-        if y_true_sorted[i] == 1:
-            tp += 1
-            fn -= 1
-        else:
-            fp += 1
-        
-        precision = tp / (tp + fp) if (tp + fp) != 0 else 0
-        recall = tp / (tp + fn) if (tp + fn) != 0 else 0
-        
-        precision_points.append(precision)
-        recall_points.append(recall)
-    
-    auc_pr_value = 0
-    for i in range(1, len(precision_points)):
-        auc_pr_value += (recall_points[i] - recall_points[i - 1]) * precision_points[i]
-    
-    print(f"AUC-PR Calculado: {auc_pr_value}")
-    return auc_pr_value
 
 
 
