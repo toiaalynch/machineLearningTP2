@@ -1,57 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score, average_precision_score
+from sklearn.metrics import f1_score as sklearn_f1_score
 
-
-def confusion_matrix(y_true, y_pred):
-    TP = np.sum((y_true == 1) & (y_pred == 1))  # Verdaderos Positivos
-    TN = np.sum((y_true == 0) & (y_pred == 0))  # Verdaderos Negativos
-    FP = np.sum((y_true == 0) & (y_pred == 1))  # Falsos Positivos
-    FN = np.sum((y_true == 1) & (y_pred == 0))  # Falsos Negativos
-    return np.array([[TP, FP], [FN, TN]])
-
-def accuracy(y_true, y_pred):
-    cm = confusion_matrix(y_true, y_pred)
-    return (cm[0, 0] + cm[1, 1]) / np.sum(cm)
+def matriz_de_confusion(y_true, y_pred):
+    tp = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 1 and vp == 1)
+    tn = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 0 and vp == 0)
+    fp = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 0 and vp == 1)
+    fn = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 1 and vp == 0)
+    return [[tn, fp], [fn, tp]]
 
 def precision(y_true, y_pred):
-    cm = confusion_matrix(y_true, y_pred)
-    TP, FP = cm[0, 0], cm[0, 1]
-    return TP / (TP + FP) if (TP + FP) != 0 else 0
+    tp = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 1 and vp == 1)
+    fp = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 0 and vp == 1)
+    return tp / (tp + fp) if (tp + fp) > 0 else 0
 
 def recall(y_true, y_pred):
-    cm = confusion_matrix(y_true, y_pred)
-    TP, FN = cm[0, 0], cm[1, 0]
-    return TP / (TP + FN) if (TP + FN) != 0 else 0
+    tp = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 1 and vp == 1)
+    fn = sum(1 for vt, vp in zip(y_true, y_pred) if vt == 1 and vp == 0)
+    return tp / (tp + fn) if (tp + fn) > 0 else 0
 
 def f1_score(y_true, y_pred):
-    prec = precision(y_true, y_pred)  # Cambia el nombre de la variable para evitar conflicto
+    prec = precision(y_true, y_pred)
     rec = recall(y_true, y_pred)
-    return 2 * (prec * rec) / (prec + rec) if (prec + rec) != 0 else 0
+    return 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0
 
+def accuracy(y_true, y_pred):
+    correctas = sum(1 for vt, vp in zip(y_true, y_pred) if vt == vp)
+    return correctas / len(y_true)
 
 def roc_auc(y_true, y_prob):
     try:
         auc = roc_auc_score(y_true, y_prob)
-        print(f"AUC-ROC Calculado: {auc}")
         return auc
     except ValueError as e:
-        print(f"Error en AUC-ROC: {e}")
         return 0
 
 
-
-
-
-
-# Cálculo del AUC-PR
 def auc_pr(y_true, y_prob):
     try:
         auc = average_precision_score(y_true, y_prob)
-        print(f"AUC-PR Calculado: {auc}")
         return auc
     except ValueError as e:
-        print(f"Error en AUC-PR: {e}")
         return 0
 
 
@@ -67,7 +57,6 @@ def plot_roc_curves(models, y_true, y_probs):
         # Asegurarse de que y_true y y_prob tengan el mismo tamaño
         y_true_sorted = y_true[sorted_indices]
         if len(y_true_sorted) != len(y_prob):
-            print(f"Warning: Mismatch in lengths of y_true and y_prob for {model_name}")
             continue  # Saltar este modelo si las longitudes no coinciden
 
         pos_count = np.sum(y_true == 1)
@@ -107,7 +96,6 @@ def plot_pr_curves(models, y_true, y_probs):
         # Asegurarse de que y_true y y_prob tengan el mismo tamaño
         y_true_sorted = y_true[sorted_indices]
         if len(y_true_sorted) != len(y_prob):
-            print(f"Warning: Mismatch in lengths of y_true and y_prob for {model_name}")
             continue  # Saltar este modelo si las longitudes no coinciden
 
         tp = 0
