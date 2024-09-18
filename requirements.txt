@@ -1,10 +1,9 @@
 Problema 1:
 
-2. Lo de auc roc y auc pc no esta bien. 
-3. Para ajustar Lambda usar F1 score.
-4. Matriz de confusion y grafico de curva ROC y PR.
-5. Definir que modelo enviar y justificar porqué.
-CUANDO USO EL DATASET DE TEST?!?!!?!
+1. Lo de auc roc y auc pc no esta bien. (DE BAJA, NO LO LOGRE)
+2. Ver si puedo mejorar las métricas
+3. Definir que modelo enviar y justificar porqué.
+
 
 Problema 2:
 ESTA MAL EL TP.PY EL LOAD FILE, COPIAR DEL PROBLEMA 1
