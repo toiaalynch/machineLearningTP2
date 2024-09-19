@@ -308,7 +308,7 @@ class DecisionTree:
 
 
 class RandomForestClassifier:
-    def __init__(self, n_trees=10, max_depth=None, n_features=None):
+    def __init__(self, n_trees, max_depth=None, n_features=None):
         """
         Inicializa el Bosque Aleatorio.
         
