@@ -98,7 +98,7 @@ class LogisticRegressionMulticlass:
 
 
 class LinearDiscriminantAnalysis:
-    def __init__(self, num_components=None):
+    def __init__(self, num_components):
         """
         Inicializa el modelo de LDA.
         
