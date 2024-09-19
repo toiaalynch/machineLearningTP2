@@ -144,7 +144,7 @@ def preprocess_data(file_path, target_col_idx, method="undersampling"):
     save_data(processed_data, output_filename)
 
 if __name__ == "__main__":
-    dataset_file = "/Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/raw/breast_cancer_dev.csv"
+    dataset_file = "/Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/train.csv"
     target_column_idx = -1  # Índice de la columna objetivo (la última columna)
 
     preprocess_data(dataset_file, target_column_idx, method="undersampling")
@@ -179,24 +179,28 @@ for nombre, file_path in datasets.items():
 
 
 
-# === Verificando el dataset: Raw Data ===
-# Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/raw/breast_cancer_dev.csv:
-# Clase 0: 302 muestras
-# Clase 1: 86 muestras
+# # === Verificando el dataset: Raw Data ===
+# # Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/raw/breast_cancer_dev.csv:
+# # Clase 0: 302 muestras
+# # Clase 1: 86 muestras
 
-# === Verificando el dataset: Undersampling ===
-# Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_undersampling.csv:
-# Clase 0: 85 muestras
-# Clase 1: 86 muestras
-
-
-# === Verificando el dataset: Oversampling Duplication ===
-# Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_oversampling_duplication.csv:
-# Clase 0: 301 muestras
-# Clase 1: 302 muestras
+# # === Verificando el dataset: Undersampling ===
+# # Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_undersampling.csv:
+# # Clase 0: 85 muestras
+# # Clase 1: 86 muestras
 
 
-# === Verificando el dataset: Oversampling SMOTE ===
-# Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_oversampling_smote.csv:
-# Clase 0: 302 muestras
-# Clase 1: 301 muestras
+# # === Verificando el dataset: Oversampling Duplication ===
+# # Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_oversampling_duplication.csv:
+# # Clase 0: 301 muestras
+# # Clase 1: 302 muestras
+
+
+# # === Verificando el dataset: Oversampling SMOTE ===
+# # Distribución de clases para /Users/victoria/Desktop/5tocuatrimestre/ml/tps/tp3ml/machineLearningTP2/problema1/data/preprocessed/data_oversampling_smote.csv:
+# # Clase 0: 302 muestras
+# # Clase 1: 301 muestras
+
+
+
+

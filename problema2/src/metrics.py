@@ -169,8 +169,6 @@ def save_metrics(y_true, y_pred, y_prob):
     return metrics
 
 
-
-
 def print_table(resultados):
     print(f"{'Modelo':<20}{'Accuracy':<10}{'Precision':<10}{'Recall':<10}{'F1-Score':<10}{'AUC-ROC':<10}{'AUC-PR':<10}")
     for modelo, metricas in resultados.items():
